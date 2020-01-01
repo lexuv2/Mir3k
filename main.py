@@ -227,6 +227,7 @@ class EchoBot(Client):
 
         if (("kocham" or "Kocham") in str(message_object.text)):
           await self.send(Message(text="ja ciebie również" + str(author_id)), thread_id=thread_id, thread_type=thread_type)
+          self.reactToMessage(message_object.uid, MessageReaction.LOVE)
           talk = True
           
         if ('!twardo' in str(message_object.text)):
