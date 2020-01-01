@@ -1,3 +1,4 @@
+
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 import discord
@@ -6,10 +7,10 @@ from googletrans import Translator
 import random
 from chatterbot.trainers import ListTrainer
 from fbchat import Client
-from fbchat.models import *
+from fbchat import Client, ThreadType , Message , ImageAttachment , TypingStatus , MessageReaction , ThreadColor
 import threading
 import logging
-from fbchat import log
+#from fbchat import log
 from chatterbot.response_selection import get_most_frequent_response
 import chatterbot.conversation
 import time
@@ -22,7 +23,7 @@ import requests
 import os
 import random
 from chatterbot import filters
-
+import asyncio
 bot = ChatBot('Ron Obvious', #response_selection_method=get_most_frequent_response,
               filters=["chatterbot.filters.RepetitiveResponseFilter",filters.get_recent_repeated_responses], logic_adapters=[
         {
@@ -173,20 +174,16 @@ color = False
 
 class EchoBot(Client):
 
-    def onColorChange(self, author_id, new_color, thread_id, thread_type, **kwargs):
-        if old_thread_id == thread_id and old_color != new_color:
-            self.changeThreadColor(ThreadColor.RADICAL_RED, thread_id=thread_id)
-            color = True
-
-    def onMessage(self, author_id, message_object, thread_id, thread_type, **kwargs):
-        self.setTypingStatus(TypingStatus.TYPING, thread_id=thread_id, thread_type=thread_type)
+    async def on_message(self, mid=None, author_id=None, message_object=None, thread_id=None,thread_type=None, at=None, metadata=None, msg=None):
+        print('paapakj')
+        await self.set_typing_status(TypingStatus.TYPING, thread_id=thread_id, thread_type=thread_type)
 
 
         talk = False
         if (len(message_object.attachments)>0) and message_object.text == None:
             talk=True
             for img in message_object.attachments:
-                url = self.fetchImageUrl(str(img.uid))
+                url = await self.fetch_image_url(str(img.uid))
                 response = requests.get(url).content
                 with open("memy/"+str(time.time())+".jpg",'wb') as file:
                     file.write(response)
@@ -194,7 +191,7 @@ class EchoBot(Client):
             files = os.listdir(path)
             index = random.randrange(0, len(files))
             upload = files[index]
-            self.sendLocalImage("memy/"+str(upload),bot.storage.get_random(),thread_id=thread_id, thread_type=thread_type)
+            await self.send_local_files("memy/"+str(upload),bot.storage.get_random(),thread_id=thread_id, thread_type=thread_type)
 
 
 
@@ -209,23 +206,23 @@ class EchoBot(Client):
                     files = os.listdir(path)
                     index = random.randrange(0, len(files))
                     upload = files[index]
-                    self.sendLocalImage("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,thread_type=thread_type)
+                    await self.send_local_files("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,thread_type=thread_type)
             else:
-                self.send(Message(text="spadaj za dużo"), thread_id=thread_id, thread_type=thread_type)
+                await self.send(Message(text="spadaj za dużo"), thread_id=thread_id, thread_type=thread_type)
 
 
         if (str(message_object.text) == '!sentencja'):
             msg = str(teksty[random.randint(0, len(teksty) - 1)])
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             msg = translate(50)
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             talk = True
 
         if (str(message_object.text) == '!wiersz'):
             msg = str(teksty[random.randint(0, len(teksty) - 1)])
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             msg = szukaj_rymow(translate(400))
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             talk = True
 
         if ('!twardo' in str(message_object.text)):
@@ -235,20 +232,20 @@ class EchoBot(Client):
                 first = first.replace("!twardo", '')
                 first = first[1:]
                 try:
-                    print(help(bot.storage))
+                    #print(help(bot.storage))
                     bot.storage.remove("test")
                     msg = "chyba zadziałało"
-                    self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                    await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
                 except Exception as e:
-                    self.send(Message(text=str(e)), thread_id=thread_id, thread_type=thread_type)
+                    await self.send(Message(text=str(e)), thread_id=thread_id, thread_type=thread_type)
                 talk = True
             else:
                 msg = malpa[random.randrange(0, len(malpa))]
-                self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
                 talk = True
         if ('!dajadmina' in str(message_object.text)):
-            self.send(Message(text="wysłałem do stwórcy prośbe o admina"), thread_id=thread_id, thread_type=thread_type)
-            self.send(Message(text=str(author_id) + " " + "chce admina"), thread_id=100007449961234,
+            await self.send(Message(text="wysłałem do stwórcy prośbe o admina"), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=str(author_id) + " " + "chce admina"), thread_id=100007449961234,
                       thread_type=ThreadType.USER)
             talk = True
 
@@ -263,66 +260,64 @@ class EchoBot(Client):
                 msg += ']'
                 msg += '\n'
 
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             talk = True
 
 
         if ('!licz' in str(message_object.text)):
-            self.send(Message(text=bot.storage.count()), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=bot.storage.count()), thread_id=thread_id, thread_type=thread_type)
             talk = True
 
-        if ('!global' in str(message_object.text)):
-            say = str(message_object.text)
-            say = say.replace("!global", '')
-            users = self.fetchAllUsers()
-            for x in users:
-                self.send(Message(text=say + "[jak nie chesz tego dostawać to mnie wycisz]"), thread_id=x.uid,
-                          thread_type=ThreadType.USER)
-                print("global sent to" + str(thread_id))
-                time.sleep(20)
-            talk = True
 
-        if (str(datetime.datetime.now())[11:13] == "21" and str(datetime.datetime.now())[14:16] == "37"):
-            for x in users:
-                self.send(Message(text=str(bot.storage.get_random())), thread_id=x.uid, thread_type=ThreadType.USER)
-                time.sleep(20)
-            talk = True
 
-        self.markAsDelivered(thread_id, message_object.uid)
-        self.markAsRead(thread_id)
+
+
+        await self.mark_as_delivered(thread_id, message_object.uid)
+        await self.mark_as_read(thread_id)
 
         # If you're not the author, echo
         if author_id != self.uid and talk == False:
             react = random.randint(0, 20)
             if react == 0:
-                self.reactToMessage(message_object.uid, MessageReaction.LOVE)
+                await self.react_to_message(message_object.uid, MessageReaction.LOVE)
             if react == 1:
-                self.reactToMessage(message_object.uid, MessageReaction.ANGRY)
+                await self.react_to_message(message_object.uid, MessageReaction.ANGRY)
             if react == 2:
-                self.reactToMessage(message_object.uid, MessageReaction.NO)
+                await self.react_to_message(message_object.uid, MessageReaction.NO)
             if react == 3:
-                self.reactToMessage(message_object.uid, MessageReaction.SAD)
+                await self.react_to_message(message_object.uid, MessageReaction.SAD)
             if react == 4:
-                self.reactToMessage(message_object.uid, MessageReaction.SMILE)
+                await self.react_to_message(message_object.uid, MessageReaction.SMILE)
             if react == 5:
-                self.reactToMessage(message_object.uid, MessageReaction.WOW)
+                await self.react_to_message(message_object.uid, MessageReaction.WOW)
             if react == 6:
-                self.reactToMessage(message_object.uid, MessageReaction.YES)
+                await self.react_to_message(message_object.uid, MessageReaction.YES)
 
             inputer = str(message_object.text)
             inputer = inputer.replace("@Mirek Gajos", '')
             out = str(bot.get_response(inputer))
             msg = str(out)
-            self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             txtt= str(message_object.text)
             t = threading.Thread(target=learn(out, txtt))
             t.start()
 
-        self.setTypingStatus(TypingStatus.STOPPED, thread_id=thread_id, thread_type=thread_type)
+        await self.set_typing_status(TypingStatus.STOPPED, thread_id=thread_id, thread_type=thread_type)
 
 
-fbclient = EchoBot('kryptomail12345@gmail.com', 'Papaj2137')
+loop = asyncio.get_event_loop()
+
+
+async def start():
+    client = EchoBot(loop=loop)
+    print("Logging in...")
+    await client.start('kryptomail12345@gmail.com', 'Aleks@2003')
+    print("xalo")
+    client.listen()
+
+
+loop.run_until_complete(start())
+loop.run_forever()
+
 
 # logging.basicConfig(level=logging.INFO)
-bot.initialize()
-fbclient.listen()
