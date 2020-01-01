@@ -225,6 +225,11 @@ class EchoBot(Client):
             await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             talk = True
 
+        if (("kocham" or "Kocham") in str(message_object.text)):
+          await self.send(Message(text="ja ciebie również" + str(author_id)), thread_id=thread_id, thread_type=thread_type)
+          self.reactToMessage(message_object.uid, MessageReaction.LOVE)
+          talk = True
+          
         if ('!twardo' in str(message_object.text)):
             #global bot
             if author_id == "100007449961234" or author_id == "100010187023438":
@@ -243,6 +248,7 @@ class EchoBot(Client):
                 msg = malpa[random.randrange(0, len(malpa))]
                 await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
                 talk = True
+                
         if ('!dajadmina' in str(message_object.text)):
             await self.send(Message(text="wysłałem do stwórcy prośbe o admina"), thread_id=thread_id, thread_type=thread_type)
             await self.send(Message(text=str(author_id) + " " + "chce admina"), thread_id=100007449961234,
