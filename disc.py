@@ -225,7 +225,7 @@ class EchoBot(Client):
             await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
             talk = True
 
-        if (("kocham" or "Kocham") in str(message_object.text)):
+        if (("kocham" or "Kocham") in  str(message_object.text).lower()):
           info = await self.fetch_user_info(author_id)
           info = info[str(author_id)]
           await self.send(Message(text="ja ciebie również" +" " +str(info.name)), thread_id=thread_id, thread_type=thread_type)
