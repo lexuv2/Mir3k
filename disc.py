@@ -226,7 +226,9 @@ class EchoBot(Client):
             talk = True
 
         if (("kocham" or "Kocham") in str(message_object.text)):
-          await self.send(Message(text="ja ciebie również" + str(author_id)), thread_id=thread_id, thread_type=thread_type)
+          info = await self.fetch_user_info(author_id)
+          info = info[str(author_id)]
+          await self.send(Message(text="ja ciebie również" +" " +str(info.name)), thread_id=thread_id, thread_type=thread_type)
           self.reactToMessage(message_object.uid, MessageReaction.LOVE)
           talk = True
           
