@@ -192,9 +192,16 @@ class EchoBot(Client):
             index = random.randrange(0, len(files))
             upload = files[index]
             await self.send_local_files("memy/"+str(upload),bot.storage.get_random(),thread_id=thread_id, thread_type=thread_type)
-
-
-
+            
+      l_mute = []
+      
+      if (author_id in l_mute):
+        continue
+      else:       
+        if ("!mute" in str(message_object.text)):
+          l_mute.append(author_id)
+          await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
+          Talk = True
 
         if ('!memy' in str(message_object.text)):
             first = str(message_object.text)
@@ -228,8 +235,8 @@ class EchoBot(Client):
         if (("kocham" or "Kocham") in  str(message_object.text).lower()):
           info = await self.fetch_user_info(author_id)
           info = info[str(author_id)]
-          await self.send(Message(text="ja ciebie również" +" " +str(info.name)), thread_id=thread_id, thread_type=thread_type)
-          self.reactToMessage(message_object.uid, MessageReaction.LOVE)
+          await self.send(Message(text="ja ciebie również " + str(info.name)), thread_id=thread_id, thread_type=thread_type)
+          await self.reactToMessage(message_object.uid, MessageReaction.LOVE)
           talk = True
           
         if ('!twardo' in str(message_object.text)):
