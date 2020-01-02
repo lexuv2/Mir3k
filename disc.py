@@ -201,7 +201,7 @@ class EchoBot(Client):
         if ("!mute" in str(message_object.text)):
           l_mute.append(author_id)
           await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
-          Talk = False
+          Talk = True
 
         if ('!memy' in str(message_object.text)):
             first = str(message_object.text)
