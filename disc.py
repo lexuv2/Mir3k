@@ -1,4 +1,3 @@
-
 from chatterbot import ChatBot
 from chatterbot.trainers import ChatterBotCorpusTrainer
 import discord
@@ -7,10 +6,10 @@ from googletrans import Translator
 import random
 from chatterbot.trainers import ListTrainer
 from fbchat import Client
-from fbchat import Client, ThreadType , Message , ImageAttachment , TypingStatus , MessageReaction , ThreadColor
+from fbchat import Client, ThreadType, Message, ImageAttachment, TypingStatus, MessageReaction, ThreadColor
 import threading
 import logging
-#from fbchat import log
+# from fbchat import log
 from chatterbot.response_selection import get_most_frequent_response
 import chatterbot.conversation
 import time
@@ -24,16 +23,18 @@ import os
 import random
 from chatterbot import filters
 import asyncio
-bot = ChatBot('Ron Obvious', #response_selection_method=get_most_frequent_response,
-              filters=["chatterbot.filters.RepetitiveResponseFilter",filters.get_recent_repeated_responses], logic_adapters=[
-        {
-            "import_path": "chatterbot.logic.BestMatch",
-            "statement_comparison_function": chatterbot.comparisons.levenshtein_distance
-        },
-    ])  # Ron Obvious - pierwszy bot
+
+bot = ChatBot('Ron Obvious',  # response_selection_method=get_most_frequent_response,
+              filters=["chatterbot.filters.RepetitiveResponseFilter", filters.get_recent_repeated_responses],
+              logic_adapters=[
+                  {
+                      "import_path": "chatterbot.logic.BestMatch",
+                      "statement_comparison_function": chatterbot.comparisons.levenshtein_distance
+                  },
+              ])  # Ron Obvious - pierwszy bot
 
 # Create a new trainer for the chatbot
-trainer=ListTrainer(bot)
+trainer = ListTrainer(bot)
 
 TOKEN = 'NTEzMTA0NDI4ODYyMDEzNDQx.DtDJSg.Ch7NaVVpN-qqGDPYC3bRWf0rwCs'
 
@@ -137,9 +138,9 @@ def szukaj_rymow(x):
             if len(x[i]) > 4 and len(x[j]) > 4:
                 if str(x[i][len(x[i]) - 1]) == str(x[j][len(x[j]) - 1]) and str(x[i][len(x[i]) - 2]) == str(
                         x[j][len(x[j]) - 2]) and str(x[i][len(x[i]) - 3]) == str(x[j][len(x[j]) - 3]) and str(
-                        sl[i]) == str(sl[j]):
+                    sl[i]) == str(sl[j]):
                     if str(x[i]) != str(x[j]) and (not (str(x[i]) + " " + str(x[j]) in w)) and (
-                    not (str(x[j]) + " " + str(x[i]) in w)) and x[i] != x[j]:
+                            not (str(x[j]) + " " + str(x[i]) in w)) and x[i] != x[j]:
                         for k in range(0, len(x) - 1):
                             for l in range(0, len(x) - 1):
                                 if x[k] != x[l] and sl[k] + sl[i] == sl[j] + sl[l]:
@@ -170,154 +171,155 @@ msgs.append(" ")
 
 arr = []
 color = False
+l_mute = []
 
 
 class EchoBot(Client):
 
-    async def on_message(self, mid=None, author_id=None, message_object=None, thread_id=None,thread_type=None, at=None, metadata=None, msg=None):
+    async def on_message(self, mid=None, author_id=None, message_object=None, thread_id=None, thread_type=None, at=None,
+                         metadata=None, msg=None):
         print('paapakj')
         await self.set_typing_status(TypingStatus.TYPING, thread_id=thread_id, thread_type=thread_type)
 
-
         talk = False
-        if (len(message_object.attachments)>0) and message_object.text == None:
-            talk=True
+        if (len(message_object.attachments) > 0) and message_object.text == None:
+            talk = True
             for img in message_object.attachments:
                 url = await self.fetch_image_url(str(img.uid))
                 response = requests.get(url).content
-                with open("memy/"+str(time.time())+".jpg",'wb') as file:
+                with open("memy/" + str(time.time()) + ".jpg", 'wb') as file:
                     file.write(response)
             path = "memy/"
             files = os.listdir(path)
             index = random.randrange(0, len(files))
             upload = files[index]
-            await self.send_local_files("memy/"+str(upload),bot.storage.get_random(),thread_id=thread_id, thread_type=thread_type)
-            
-      l_mute = []
-      
-      if (author_id in l_mute):
-        continue
-      else:       
-        if ("!mute" in str(message_object.text)):
-          l_mute.append(author_id)
-          await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
-          Talk = True
+            await self.send_local_files("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,
+                                        thread_type=thread_type)
 
-        if ('!memy' in str(message_object.text)):
-            first = str(message_object.text)
-            first = first.replace("!memy", '')
-            path = "memy/"
-            talk = True
-            if int(first)<=10:
-                for x in range (0,int(first)):
-                    files = os.listdir(path)
-                    index = random.randrange(0, len(files))
-                    upload = files[index]
-                    await self.send_local_files("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,thread_type=thread_type)
-            else:
-                await self.send(Message(text="spadaj za dużo"), thread_id=thread_id, thread_type=thread_type)
+        if (thread_id in l_mute):
+            pass
+        else:
+            if ("!mute" in str(message_object.text)):
+                if thread_id in l_mute:
+                    l_mute.remove(thread_id)
+                    await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
+                else:
+                    l_mute.append(thread_id)
+                    await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
+                    Talk = True
+                    
+            if ('!memy' in str(message_object.text)):
+                first = str(message_object.text)
+                first = first.replace("!memy", '')
+                path = "memy/"
+                talk = True
+                if int(first) <= 10:
+                    for x in range(0, int(first)):
+                        files = os.listdir(path)
+                        index = random.randrange(0, len(files))
+                        upload = files[index]
+                        await self.send_local_files("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,
+                                                    thread_type=thread_type)
+                else:
+                    await self.send(Message(text="spadaj za dużo"), thread_id=thread_id, thread_type=thread_type)
 
+            if (str(message_object.text) == '!sentencja'):
+                msg = str(teksty[random.randint(0, len(teksty) - 1)])
+                await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                msg = translate(50)
+                await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                talk = True
 
-        if (str(message_object.text) == '!sentencja'):
-            msg = str(teksty[random.randint(0, len(teksty) - 1)])
-            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-            msg = translate(50)
-            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-            talk = True
+            if (str(message_object.text) == '!wiersz'):
+                msg = str(teksty[random.randint(0, len(teksty) - 1)])
+                await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                msg = szukaj_rymow(translate(400))
+                await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                talk = True
 
-        if (str(message_object.text) == '!wiersz'):
-            msg = str(teksty[random.randint(0, len(teksty) - 1)])
-            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-            msg = szukaj_rymow(translate(400))
-            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-            talk = True
+            if (("kocham" or "Kocham") in str(message_object.text).lower()):
+                info = await self.fetch_user_info(author_id)
+                info = info[str(author_id)]
+                await self.send(Message(text="ja ciebie również " + str(info.name)), thread_id=thread_id,
+                                thread_type=thread_type)
+                await self.reactToMessage(message_object.uid, MessageReaction.LOVE)
+                talk = True
 
-        if (("kocham" or "Kocham") in  str(message_object.text).lower()):
-          info = await self.fetch_user_info(author_id)
-          info = info[str(author_id)]
-          await self.send(Message(text="ja ciebie również " + str(info.name)), thread_id=thread_id, thread_type=thread_type)
-          await self.reactToMessage(message_object.uid, MessageReaction.LOVE)
-          talk = True
-          
-        if ('!twardo' in str(message_object.text)):
-            #global bot
-            if author_id == "100007449961234" or author_id == "100010187023438":
+            if ('!twardo' in str(message_object.text)):
+                # global bot
+                if author_id == "100007449961234" or author_id == "100010187023438":
+                    first = str(message_object.text)
+                    first = first.replace("!twardo", '')
+                    first = first[1:]
+                    try:
+                        # print(help(bot.storage))
+                        bot.storage.remove("test")
+                        msg = "chyba zadziałało"
+                        await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                    except Exception as e:
+                        await self.send(Message(text=str(e)), thread_id=thread_id, thread_type=thread_type)
+                    talk = True
+                else:
+                    msg = malpa[random.randrange(0, len(malpa))]
+                    await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                    talk = True
+
+            if ('!dajadmina' in str(message_object.text)):
+                await self.send(Message(text="wysłałem do stwórcy prośbe o admina"), thread_id=thread_id,
+                                thread_type=thread_type)
+                await self.send(Message(text=str(author_id) + " " + "chce admina"), thread_id=100007449961234,
+                                thread_type=ThreadType.USER)
+                talk = True
+
+            if ('!baza' in str(message_object.text)):
                 first = str(message_object.text)
                 first = first.replace("!twardo", '')
                 first = first[1:]
-                try:
-                    #print(help(bot.storage))
-                    bot.storage.remove("test")
-                    msg = "chyba zadziałało"
-                    await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-                except Exception as e:
-                    await self.send(Message(text=str(e)), thread_id=thread_id, thread_type=thread_type)
-                talk = True
-            else:
-                msg = malpa[random.randrange(0, len(malpa))]
+                msg = ''
+                for x in range(0, 100):
+                    msg += '['
+                    msg += str(bot.storage.get_random())
+                    msg += ']'
+                    msg += '\n'
+
                 await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
                 talk = True
-                
-        if ('!dajadmina' in str(message_object.text)):
-            await self.send(Message(text="wysłałem do stwórcy prośbe o admina"), thread_id=thread_id, thread_type=thread_type)
-            await self.send(Message(text=str(author_id) + " " + "chce admina"), thread_id=100007449961234,
-                      thread_type=ThreadType.USER)
-            talk = True
 
-        if ('!baza' in str(message_object.text)):
-            first = str(message_object.text)
-            first = first.replace("!twardo", '')
-            first = first[1:]
-            msg = ''
-            for x in range(0, 100):
-                msg += '['
-                msg += str(bot.storage.get_random())
-                msg += ']'
-                msg += '\n'
+            if ('!licz' in str(message_object.text)):
+                await self.send(Message(text=bot.storage.count()), thread_id=thread_id, thread_type=thread_type)
+                talk = True
 
-            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-            talk = True
+            await self.mark_as_delivered(thread_id, message_object.uid)
+            await self.mark_as_read(thread_id)
 
+            # If you're not the author, echo
+            if author_id != self.uid and talk == False:
+                react = random.randint(0, 20)
+                if react == 0:
+                    await self.react_to_message(message_object.uid, MessageReaction.LOVE)
+                if react == 1:
+                    await self.react_to_message(message_object.uid, MessageReaction.ANGRY)
+                if react == 2:
+                    await self.react_to_message(message_object.uid, MessageReaction.NO)
+                if react == 3:
+                    await self.react_to_message(message_object.uid, MessageReaction.SAD)
+                if react == 4:
+                    await self.react_to_message(message_object.uid, MessageReaction.SMILE)
+                if react == 5:
+                    await self.react_to_message(message_object.uid, MessageReaction.WOW)
+                if react == 6:
+                    await self.react_to_message(message_object.uid, MessageReaction.YES)
 
-        if ('!licz' in str(message_object.text)):
-            await self.send(Message(text=bot.storage.count()), thread_id=thread_id, thread_type=thread_type)
-            talk = True
+                inputer = str(message_object.text)
+                inputer = inputer.replace("@Mirek Gajos", '')
+                out = str(bot.get_response(inputer))
+                msg = str(out)
+                await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
+                txtt = str(message_object.text)
+                t = threading.Thread(target=learn(out, txtt))
+                t.start()
 
-
-
-
-
-        await self.mark_as_delivered(thread_id, message_object.uid)
-        await self.mark_as_read(thread_id)
-
-        # If you're not the author, echo
-        if author_id != self.uid and talk == False:
-            react = random.randint(0, 20)
-            if react == 0:
-                await self.react_to_message(message_object.uid, MessageReaction.LOVE)
-            if react == 1:
-                await self.react_to_message(message_object.uid, MessageReaction.ANGRY)
-            if react == 2:
-                await self.react_to_message(message_object.uid, MessageReaction.NO)
-            if react == 3:
-                await self.react_to_message(message_object.uid, MessageReaction.SAD)
-            if react == 4:
-                await self.react_to_message(message_object.uid, MessageReaction.SMILE)
-            if react == 5:
-                await self.react_to_message(message_object.uid, MessageReaction.WOW)
-            if react == 6:
-                await self.react_to_message(message_object.uid, MessageReaction.YES)
-
-            inputer = str(message_object.text)
-            inputer = inputer.replace("@Mirek Gajos", '')
-            out = str(bot.get_response(inputer))
-            msg = str(out)
-            await self.send(Message(text=msg), thread_id=thread_id, thread_type=thread_type)
-            txtt= str(message_object.text)
-            t = threading.Thread(target=learn(out, txtt))
-            t.start()
-
-        await self.set_typing_status(TypingStatus.STOPPED, thread_id=thread_id, thread_type=thread_type)
+            await self.set_typing_status(TypingStatus.STOPPED, thread_id=thread_id, thread_type=thread_type)
 
 
 loop = asyncio.get_event_loop()
@@ -333,6 +335,5 @@ async def start():
 
 loop.run_until_complete(start())
 loop.run_forever()
-
 
 # logging.basicConfig(level=logging.INFO)
