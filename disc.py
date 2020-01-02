@@ -202,7 +202,7 @@ class EchoBot(Client):
                 await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
             else:
                 pass
-            
+        else:
             if ("!mute" in str(message_object.text)):
                     l_mute.append(thread_id)
                     await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
