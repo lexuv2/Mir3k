@@ -1,8 +1,5 @@
 # Mir3k
-###Wyamgania 
-1 websockets==8.1
+### Project Setup (DEV)
+To setup project simply run `setup-dev.sh` script (before set propper execution priviliges using chmod command). Script will also create `run.sh` which will allow you to run program easily.
 
-2 fbchat-asyncio==0.3.0
-
-//reszta - najnowsze z importów//
-
+### Credits
