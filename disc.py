@@ -197,16 +197,15 @@ class EchoBot(Client):
                                         thread_type=thread_type)
 
         if (thread_id in l_mute):
-            pass
-        else:
             if ("!mute" in str(message_object.text)):
-                if thread_id in l_mute:
-                    l_mute.remove(thread_id)
-                    await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
-                else:
+                l_mute.remove(thread_id)
+                await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
+            else:
+                pass
+            
+            if ("!mute" in str(message_object.text)):
                     l_mute.append(thread_id)
                     await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
-                    Talk = True
                     
             if ('!memy' in str(message_object.text)):
                 first = str(message_object.text)
@@ -240,7 +239,7 @@ class EchoBot(Client):
             if (("kocham" or "Kocham") in str(message_object.text).lower()):
                 info = await self.fetch_user_info(author_id)
                 info = info[str(author_id)]
-                await self.send(Message(text="ja ciebie również " + str(info.name)), thread_id=thread_id,
+                await self.send(Message(text="ja ciebie również " + str(info.name) + " <33"), thread_id=thread_id,
                                 thread_type=thread_type)
                 await self.reactToMessage(message_object.uid, MessageReaction.LOVE)
                 talk = True
