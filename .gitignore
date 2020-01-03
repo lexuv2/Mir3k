@@ -6,3 +6,5 @@
 .idea/Mir3k.iml
 .idea/inspectionProfiles/profiles_settings.xml
 .idea/deployment.xml
+venv
+*.sqlite3
