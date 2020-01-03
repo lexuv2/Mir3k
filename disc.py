@@ -171,8 +171,7 @@ msgs.append(" ")
 
 arr = []
 color = False
-l_mute = []
-
+f = open("l_mute".txt", "a+")
 
 class EchoBot(Client):
 
@@ -195,16 +194,21 @@ class EchoBot(Client):
             upload = files[index]
             await self.send_local_files("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,
                                         thread_type=thread_type)
-
-        if (thread_id in l_mute):
+    with open("l_mute.txt") as f:
+        if (thread_id in f.read()):
             if ("!mute" in str(message_object.text)):
-                l_mute.remove(thread_id)
+                with open("l_mute.txt", "r") as f:
+                    lines = f.readlines()
+                with open("l_mute.txt", "w") as f:
+                    for line in lines:
+                        if line.strip("\n") != thread_id:
+                            f.write(line)
                 await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
             else:
                 pass
         else:
             if ("!mute" in str(message_object.text)):
-                    l_mute.append(thread_id)
+                    f.write(thread_id)
                     await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
                     
             if ('!memy' in str(message_object.text)):
