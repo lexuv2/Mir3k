@@ -181,6 +181,20 @@ class EchoBot(Client):
         await self.set_typing_status(TypingStatus.TYPING, thread_id=thread_id, thread_type=thread_type)
 
         talk = False
+        
+  with open("l_mute.txt") as f:
+      if (thread_id in f.read()):
+          if ("!mute" in str(message_object.text)):
+              with open("l_mute.txt", "r") as f:
+                  lines = f.readlines()
+              with open("l_mute.txt", "w") as f:
+                  for line in lines:
+                      if line.strip("\n") != thread_id:
+                          f.write(line)
+              await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
+          else:
+              pass
+      else: 
         if (len(message_object.attachments) > 0) and message_object.text == None:
             talk = True
             for img in message_object.attachments:
@@ -194,19 +208,7 @@ class EchoBot(Client):
             upload = files[index]
             await self.send_local_files("memy/" + str(upload), bot.storage.get_random(), thread_id=thread_id,
                                         thread_type=thread_type)
-    with open("l_mute.txt") as f:
-        if (thread_id in f.read()):
-            if ("!mute" in str(message_object.text)):
-                with open("l_mute.txt", "r") as f:
-                    lines = f.readlines()
-                with open("l_mute.txt", "w") as f:
-                    for line in lines:
-                        if line.strip("\n") != thread_id:
-                            f.write(line)
-                await self.send(Message(text="w końcu moge gadać"), thread_id=thread_id, thread_type=thread_type)
-            else:
-                pass
-        else:
+         
             if ("!mute" in str(message_object.text)):
                     f.write(thread_id)
                     await self.send(Message(text="juz sie robi panie"), thread_id=thread_id, thread_type=thread_type)
