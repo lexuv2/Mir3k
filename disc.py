@@ -248,7 +248,7 @@ class EchoBot(Client):
                 await self.send(Message(text="ja ciebie również " + str(info.name) + " <33"), thread_id=thread_id,
                                 thread_type=thread_type)
                 await self.reactToMessage(message_object.uid, MessageReaction.LOVE)
-                talk = True
+                talk = False
 
             if ('!twardo' in str(message_object.text)):
                 # global bot
